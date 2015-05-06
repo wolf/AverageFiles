@@ -1,9 +1,10 @@
 from __future__ import division, print_function
 
-import os, sys
-from subprocess import check_output
+import os
+import sys
 from collections import Counter
 from contextlib import contextmanager
+from subprocess import check_output
 
 
 @contextmanager
@@ -31,13 +32,13 @@ def all_non_merge_commits( git_dir=None, limit=None ):
         yield h
 
 
-def count_files_committed( git_dir=None ):
+def count_files_committed( git_dir=None, depth=None ):
     """Return a collections.Counter dictionary where the keys are file-counts and the values
     are the number of commits that touched exactly that many files.
     """
     counter = Counter()
     with use_directory(git_dir):
-        for h in all_non_merge_commits():
+        for h in all_non_merge_commits(limit=depth):
             out = check_output(['git', 'log', '--no-walk', '--format=', '--name-only', h])
             num_files_touched = len(out.splitlines())
             counter[num_files_touched] += 1
