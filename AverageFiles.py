@@ -45,6 +45,19 @@ def count_files_committed( git_dir=None, depth=None ):
     return counter
 
 
+def note_files_committed( git_dir=None, depth=None ):
+    """Return a collections.Counter dictionary where the keys are paths and the values
+    are the number of commits that touched exactly that many files.
+    """
+    counter = Counter()
+    with use_directory(git_dir):
+        for h in all_non_merge_commits(limit=depth):
+            out = check_output(['git', 'log', '--no-walk', '--format=', '--name-only', h])
+            for path in out.decode('utf-8').splitlines():
+                counter[path] += 1
+    return counter
+
+
 def average_files_per_commit( counter ):
     """Given a dictionary as returned by count_files_committed(),
     return the average number of files touched per commit.
